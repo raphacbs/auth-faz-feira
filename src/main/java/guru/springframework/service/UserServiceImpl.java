@@ -2,6 +2,7 @@ package guru.springframework.service;
 
 import guru.springframework.config.JwtGenerator;
 import guru.springframework.dto.TokenDto;
+import guru.springframework.dto.UserDto;
 import guru.springframework.dto.UserRequest;
 import guru.springframework.exception.UserNotFoundException;
 import guru.springframework.model.Role;
@@ -28,12 +29,18 @@ public class UserServiceImpl implements UserService {
         this.jwtGenerator = jwtGenerator;
     }
     @Override
-    public void save(User user) {
+    public UserDto save(User user) {
         user.setCreatedAt(LocalDateTime.now());
         user.setRole(Role.USER);
         user.setActive(true);
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
+        user = userRepository.save(user);
+        return UserDto.builder()
+                .lastName(user.getLastName())
+                .firstName(user.getFirstName())
+                .id(user.getId())
+                .email(user.getEmail())
+                .build();
     }
 
     public Optional<TokenDto> validate(UserRequest userRequest) throws UserNotFoundException {
@@ -50,7 +57,14 @@ public class UserServiceImpl implements UserService {
         boolean isValid = userOptional.get().isActive() && passwordEncoder.matches(userRequest.getPassword(), userOptional.get().getPassword());
 
         if(isValid){
-            return Optional.ofNullable(this.jwtGenerator.generateToken(userOptional.get()));
+            User user = userOptional.get();
+            UserDto userDto = UserDto.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .build();
+            return Optional.ofNullable(this.jwtGenerator.generateToken(userDto));
         }else{
             return Optional.empty();
         }

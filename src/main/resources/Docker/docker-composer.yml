@@ -1,0 +1,26 @@
+version: '2'
+services:
+  db-postgres:
+    image: postgres:10.17
+    environment:
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=docker"
+      - "POSTGRES_DB=faz-feira-dev"
+    ports:
+      - "5432:5432"
+    volumes:
+      -  pg-data:/var/lib/postgresql/data
+    networks:
+      - spring-cloud-network
+  authentication-server:
+    build: authentication-server
+    image: authentication-server:latest
+    ports:
+      - "8085:8085"
+    networks:
+      - spring-cloud-network
+volumes:
+  pg-data:
+networks:
+  spring-cloud-network:
+    driver: bridge

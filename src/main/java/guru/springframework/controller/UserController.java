@@ -2,6 +2,7 @@ package guru.springframework.controller;
 
 import guru.springframework.config.JwtGenerator;
 import guru.springframework.dto.TokenDto;
+import guru.springframework.dto.UserDto;
 import guru.springframework.dto.UserRequest;
 import guru.springframework.exception.UserNotFoundException;
 import guru.springframework.model.User;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("api/v1/user")
 public class UserController {
     private UserService userService;
@@ -29,8 +31,8 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> postUser(@RequestBody User user) {
         try {
-            userService.save(user);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            UserDto userDto = userService.save(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }

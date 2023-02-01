@@ -1,16 +1,14 @@
 package guru.springframework.config;
 
+import com.google.gson.Gson;
 import guru.springframework.dto.TokenDto;
-import guru.springframework.dto.UserRequest;
-import guru.springframework.model.User;
+import guru.springframework.dto.UserDto;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 import io.jsonwebtoken.Jwts;
 
@@ -24,17 +22,19 @@ public class JwtGeneratorImpl implements JwtGenerator {
     private String message;
 
     @Override
-    public TokenDto generateToken(User user) {
+    public TokenDto generateToken(UserDto user) {
         final LocalDateTime localDateTime = LocalDateTime.now().plusHours(3);
-        Date expireDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        String jwtToken="";
-        jwtToken = Jwts.builder()
-                .setSubject(user.getId().toString())
-                .setIssuedAt(new Date())
-                .signWith(SignatureAlgorithm.HS256, "secret")
-                .setExpiration(expireDate)
-                .compact();
+        // Date expireDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        String jwtToken = "";
 
+        String payload = new Gson().toJson(user);
+        jwtToken = Jwts.builder()
+                .setPayload(payload)
+//                .setSubject(user.getId().toString())
+                //.setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS256, "secret")
+                //.setExpiration(expireDate)
+                .compact();
         return TokenDto.builder()
                 .token(jwtToken)
                 .message(message)
