@@ -1,16 +1,16 @@
 package guru.springframework.controller;
 
-import guru.springframework.config.JwtGenerator;
 import guru.springframework.dto.TokenDto;
 import guru.springframework.dto.UserDto;
+import guru.springframework.dto.UserInfo;
 import guru.springframework.dto.UserRequest;
+import guru.springframework.exception.UserNotAuthException;
 import guru.springframework.exception.UserNotFoundException;
 import guru.springframework.model.User;
 import guru.springframework.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -55,5 +55,14 @@ public class UserController {
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
+    }
+
+    @GetMapping("/login/google")
+    public ResponseEntity<UserInfo> loginUserGoogle(@RequestHeader("token") String token) throws UserNotAuthException {
+       return ResponseEntity.status(HttpStatus.OK).body(userService.authGoogle(token));
+    }
+    @GetMapping("/login/facebook")
+    public ResponseEntity<UserInfo> loginUserFacebook(@RequestHeader("token") String token) throws UserNotAuthException {
+       return ResponseEntity.status(HttpStatus.OK).body(userService.authFacebook(token));
     }
 }
